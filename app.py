@@ -31,6 +31,10 @@ def process_add_customer():
     first_name = request.form.get('first_name')
     last_name = request.form.get('last_name')
     email = request.form.get('email')
+
+    if first_name == "" or last_name == "" or email == "":
+        return redirect(url_for('show_add_customer'))
+        
     if 'can_send' in request.form:   #only if the checkbox is checked
         can_send = True
     else:
@@ -51,7 +55,7 @@ def process_add_customer():
 
 @app.route('/customers/<int:customer_id>/edit')
 def show_edit_customer(customer_id):
-    # find the customer to edit
+    # find the customer to edit - linear search
     customer_to_edit = None   #None = False
     for customer in database:
         if customer["id"] == customer_id:
@@ -68,6 +72,7 @@ def show_edit_customer(customer_id):
 def process_edit_customer(customer_id):
     customer_to_edit = None
 
+    #must linear search as the connect breaks, to write the data
     for customer in database:
         if customer["id"] == customer_id:
             customer_to_edit = customer
@@ -91,6 +96,41 @@ def process_edit_customer(customer_id):
     else:
         return f"Customer with id {customer_id} is not found"
 
+# must have a prompt for deletion
+@app.route('/customers/<int:customer_id>/delete')
+def show_delete_customer(customer_id):
+    customer_to_delete = None
+    for customer in database:
+        if customer['id'] == customer_id:
+            customer_to_delete = customer
+            break
+
+    #database is a list of dictionaries
+    if customer_to_delete:
+        return render_template('confirm_delete.template.html', customer=customer_to_delete)    
+
+    else:
+        return f"The customer with id {customer_id} is not found!"
+
+@app.route('/customers/<int:customer_id>/delete', methods=['POST'])
+def process_delete_customer(customer_id):
+
+    customer_to_delete = None
+    for customer in database:
+        if customer["id"] == customer_id:
+            customer_to_delete = customer
+            break
+
+    if customer_to_delete:
+        database.remove(customer_to_delete)
+
+        with open('customers.json', 'w') as fp:
+            json.dump(database, fp)
+
+        return redirect(url_for('show_customers'))
+
+    else:
+        return f"The customer with the id of {customer_id} is not found"
 
 # "magic code" -- boilerplate
 if __name__ == '__main__':

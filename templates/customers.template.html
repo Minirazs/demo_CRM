@@ -1,5 +1,7 @@
 {% extends 'base.template.html' %}
 
+{%block title%}CRM{%endblock%}
+
 {%block content%}
 <table class="table">
     <thead>
@@ -19,6 +21,7 @@
         <td>{{customer.send_marketing_material}}</td>
         <td>
             <a href="{{ url_for('show_edit_customer', customer_id=customer.id) }}" class="btn btn-primary">Edit</a>
+            <a href="{{ url_for('show_delete_customer', customer_id=customer.id) }}" class="btn btn-danger">Delete</a>
         </td>
     </tr>
     {% endfor %}
